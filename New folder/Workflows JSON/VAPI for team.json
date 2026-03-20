@@ -1,0 +1,285 @@
+{
+  "name": "VAPI for team",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "const allItems = $input.all();\nconst result = allItems.map(item => {\n  const body = item.json;  // Assuming the input data is JSON\n\n  const date = body.date;          // e.g., \"2026-03-20\"\n  const time = body.time;           // e.g., \"10:30\"\n  const patientName = body.name;\n  const phone = body.phone;\n\n  // ... any other fields\n\n  return {\n    date,\n    time,\n    patientName,\n    phone,\n    // optionally pass through the whole body\n  };\n});\n\nreturn result;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -192,
+        -80
+      ],
+      "id": "2715dae9-c1ae-485b-ae57-2d0e12655599",
+      "name": "Parse incoming data"
+    },
+    {
+      "parameters": {
+        "url": "https://aanfvjptvtawcazaaadg.supabase.co/rest/v1/appointments?select=*&date=eq.{{ $json.date }}&time=eq.{{ $json.time }}",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"date\": \"2025-03-15\",\n  \"time\": \"10:30\",\n  \"patient_name\": \"John Doe\",\n  \"phone\": \"1234567890\",\n  \"status\": \"confirmed\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        16,
+        -80
+      ],
+      "id": "3dd925a2-d0f6-4c05-b954-ac4bc0ada4f2",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "3dce86ab-cd86-4e0f-a4fa-91c4f21b60c3",
+              "leftValue": "={{ $json.length }}",
+              "rightValue": "0",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "fc594d5f-a85e-4d13-8c4a-4b961dec5d38",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        224,
+        -80
+      ],
+      "id": "23020b2a-cae1-498a-b932-3660d6ec214d",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "2d5c7052-8ab1-4d79-bc4e-e1cc1e634594",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -416,
+        -80
+      ],
+      "id": "964cbfbe-5918-4303-9de6-12e855ad5c33",
+      "name": "Webhook",
+      "webhookId": "2d5c7052-8ab1-4d79-bc4e-e1cc1e634594"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://aanfvjptvtawcazaaadg.supabase.co/rest/v1/appointments",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_upiYhHctIZGuMQzqdW0l0A_ASdf5v3O"
+            },
+            {
+              "name": "Authorization",
+              "value": "sb_publishable_upiYhHctIZGuMQzqdW0l0A_ASdf5v3O"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "=json\n{\n  \"date\": \"{{ $node['Webhook'].json.date }}\",\n  \"time\": \"{{ $node['Webhook'].json.time }}\",\n  \"patient_name\": \"{{ $node['Webhook'].json.patientName }}\",\n  \"phone\": \"{{ $node['Webhook'].json.phone }}\",\n  \"status\": \"confirmed\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        432,
+        -176
+      ],
+      "id": "8dcab526-3408-443f-bb39-9728d3d346af",
+      "name": "slots avalaible-book appointment"
+    },
+    {
+      "parameters": {
+        "url": "https://aanfvjptvtawcazaaadg.supabase.co/rest/v1/appointments?select=*&date=eq.{{$node['Webhook'].json.date}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_upiYhHctIZGuMQzqdW0l0A_ASdf5v3O"
+            },
+            {
+              "name": "Authorization",
+              "value": "sb_publishable_upiYhHctIZGuMQzqdW0l0A_ASdf5v3O"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        432,
+        16
+      ],
+      "id": "2be3b4c7-3370-45b9-afb1-e70cdf898fa4",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        640,
+        -48
+      ],
+      "id": "7b22017c-465f-4914-9458-5db4cb4c4505",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        160
+      ],
+      "id": "f98b1af6-4348-419b-abda-d33e4c30f656",
+      "name": "When clicking ‘Execute workflow’"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Parse incoming data": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "slots avalaible-book appointment",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse incoming data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "slots avalaible-book appointment": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "d681e7d9-8a10-4e53-b49b-ca7e78f51611",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1010896ab607ccddc4e4da7a14cc1c1a621095a2d0f74ed8c2b7ceb146f790be"
+  },
+  "id": "Al1kprFS1Ms640OZ",
+  "tags": []
+}

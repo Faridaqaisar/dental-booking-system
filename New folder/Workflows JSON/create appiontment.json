@@ -1,0 +1,314 @@
+{
+  "name": "create appiontment",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "create-appointment",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -208,
+        -208
+      ],
+      "id": "ce5c3702-f41f-4993-8632-ba22dd1a6f2c",
+      "name": "Webhook",
+      "webhookId": "89e9a9b8-a400-4a04-9bb0-2ed816c5d6db"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://aanfvjptvtawcazaaadg.supabase.co/rest/v1/appointments",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_upiYhHctIZGuMQzqdW0l0A_ASdf5v3O"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer sb_publishable_upiYhHctIZGuMQzqdW0l0A_ASdf5v3O"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"name\": \"{{$json['Customer Name']}}\",\n  \"email\": \"{{$json['Email Address']}}\",\n  \"phone\": \"{{$json['Phone Number']}}\",\n  \"service_type\": \"{{$json['Service Type']}}\",\n  \"appointment_date\": \"{{$json['Booking Date']}}\",\n  \"appointment_time\": \"{{$json['Booking Time']}}\",\n  \"duration\": \"{{$json['Duration']}}\",\n  \"staff_member\": \"{{$json['Staff Member']}}\",\n  \"price\": \"{{$json['Price']}}\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        224,
+        -208
+      ],
+      "id": "c2339ebd-cd61-4953-b4d8-59db9a86e41e",
+      "name": "Create Appointment",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"success\",\n  \"message\": \"Appointment booked successfully\",\n  \"appointment_id\": \"{{$node['Create Appointment'].json['id']}}\"\n}\n",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        656,
+        -192
+      ],
+      "id": "c88cd582-2922-49da-b30e-b315a1d49525",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "const parsed = $json.body;\n\nreturn [\n  {\n    json: parsed\n  }\n];\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        16,
+        -208
+      ],
+      "id": "1e2f6fc0-d761-410a-90d9-cc83b3fd150d",
+      "name": "Code in JavaScript",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "path": "get-available-slots",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -384,
+        48
+      ],
+      "id": "f56bb95c-39aa-4af1-a4c0-d647878fb533",
+      "name": "Webhook1",
+      "webhookId": "772ccefa-3081-4bc9-adb7-a4f3a8a52f17"
+    },
+    {
+      "parameters": {
+        "url": "https://aanfvjptvtawcazaaadg.supabase.co/rest/v1/doctor_slots",
+        "sendQuery": true,
+        "specifyQuery": "json",
+        "jsonQuery": "=doctor_name=eq.{{$json[\"query\"][\"doctor\"]}}\nslot_date=eq.{{$json[\"query\"][\"date\"]}}\nis_booked=eq.false\n",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_upiYhHctIZGuMQzqdW0l0A_ASdf5v3O"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer  sb_publishable_upiYhHctIZGuMQzqdW0l0A_ASdf5v3O"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -176,
+        48
+      ],
+      "id": "664b8301-4599-4ea9-8e0b-68441ead22d5",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "[\n  {\n    \"doctor_name\": \"Dr. Michael Chen\",\n    \"slot_date\": \"2026-03-16\",\n    \"slot_time\": \"9:00 AM\"\n  }\n]\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        32,
+        48
+      ],
+      "id": "ac6e9508-4cba-4227-a783-7ab3b52e6a85",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "https://aanfvjptvtawcazaaadg.supabase.co/rest/v1/doctor_slots",
+        "sendQuery": true,
+        "specifyQuery": "json",
+        "jsonQuery": "={\n  \"doctor_name\": \"eq.{{$json['staff_member']}}\",\n  \"slot_date\": \"eq.{{$json['appointment_date']}}\",\n  \"slot_time\": \"eq.{{$json['appointment_time']}}\"\n}\n",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "sb_publishable_upiYhHctIZGuMQzqdW0l0A_ASdf5v3O"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer  sb_publishable_upiYhHctIZGuMQzqdW0l0A_ASdf5v3O"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"is_booked\": true,\n  \"patient_name\": \"{{$json['name']}}\",\n  \"patient_email\": \"{{$json['email']}}\",\n  \"appointment_id\": \"{{$json['id']}}\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        464,
+        -192
+      ],
+      "id": "11f1008b-b08d-488f-b5c0-f5e1af936b1f",
+      "name": "Update Slot",
+      "alwaysOutputData": true
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.faridaqaisar.site",
+            "user-agent": "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.71.1)",
+            "content-length": "243",
+            "accept": "*/*",
+            "accept-encoding": "gzip,br",
+            "accept-language": "*",
+            "content-type": "application/json",
+            "traceparent": "00-76d3485fd03760afbbad195485e97322-1c2f7758f5edca85-01",
+            "x-forwarded-for": "47.129.85.115",
+            "x-forwarded-host": "n8n.faridaqaisar.site",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "ff71e4ccd5c5",
+            "x-real-ip": "47.129.85.115"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "Customer Name": "shaheer",
+            "Email Address": "shaheer@gmail.com",
+            "Phone Number": "030498989",
+            "Service Type": "Oral Surgery",
+            "Booking Date": "2026-03-30",
+            "Booking Time": "9:00 AM",
+            "Duration": "30 minutes",
+            "Staff Member": "Dr. Michael Chen",
+            "Price": 180
+          },
+          "webhookUrl": "https://n8n.faridaqaisar.site/webhook/create-appointment",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Appointment": {
+      "main": [
+        [
+          {
+            "node": "Update Slot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Create Appointment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Slot": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "36c42a0f-e53d-405c-9fcf-b0957b00fb9d",
+  "meta": {
+    "instanceId": "5042a90c563d96f608c055878127823db4c0f0a359b706a2f776c8efa4137849"
+  },
+  "id": "zPLpNRQxaigIATrI",
+  "tags": []
+}
